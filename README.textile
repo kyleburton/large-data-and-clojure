@@ -1,11 +1,168 @@
 h1. Large Data and Clojure: the middle ground between RAM and EC2
 
 In this talk I'll discuss techniques I have learned for working with large data
-sets, which are too large to fit in RAM, but not so large you need distributed
-computing to work with them.  I'll discuss things like: taking random samples;
-finding duplicated values as well as other types of basic analysis.' 
-
+sets - those which are too large to fit in RAM, but not so large you need
+distributed computing to work with them.  I'll discuss things like: taking
+random samples; finding duplicated values as well as other types of basic
+analysis.' 
 
 Though not specific to Clojure, many of the techniques lead to elegant, easy to
 understand implementations in Clojure by leveraging it's sequence abstraction
-as well as other aspects of the language
+as well as other features of the language.
+
+Come hear about some new gadgets to add to your data munging utility belt!
+
+h2. How to Win the Random Sample Turkey Shoot
+
+You have been asked to take a random sample of a few hundred million records in
+order to estimate some metrics of the data set as a whole.
+
+  [ dice and a turkey ]
+
+h3. I Know: the database!
+
+  SELECT * FROM some_table ORDER BY RANDOM() LIMIT 1000
+
+  [ HUGE red X ]
+
+BZZT! You just wasted time fixing the other guy's data export errors, then you
+wasted time importing the data into your database only to find that the above
+query is estimated to take somewhere between two days and the heat death of the
+universe to execute on your workstation.
+
+  [ a clock face and a DB cylinder ]
+
+h3. I'll use the 'GNU Signal!'
+
+  [ Bat-signal-like spotlight shining a huge GNU onto clouds? ]
+
+Turns out you can, sort supports a 'random' flag:
+
+  sort -R
+
+This is faster than the database...
+
+  uses up disk space on the order of your original data set [wasteful]
+  lots of IO spent computing the output
+
+   [ unhappy anthropomorphic database ]
+
+h3. "You Shall Not Pass!" (multiple times)
+
+"Selection without replacement"
+Stream the data:
+  odds are N/M of picking an element
+  N is your desired sample set size
+  M is the size of the population you haven't yet considered
+
+Decrement M after considering each member of the population
+
+Decrement N after you've chosen an element.
+
+Sit back and bask in the Win.
+
+ [ relaxed person?  the Reddit meme paint drawing / person? ]
+
+One Machine, One Pass over the file, output on the order of your sample set
+size.  The very definition of W.I.N.  (Why did I Not think of that before)
+
+h2. That Was My Hook...
+
+I was advised to tell you something valuable in the first few minutes of the
+talk by a good friend of mine: Jonny Tran.  I hope that counts...
+
+h2. What do I mean by 'Large Data'?
+
+When your data set, or the information you need to track to analyze it, fits
+into RAM, you can effectively ignore most of these techniques.  Finding
+duplicated values in an array that already fits in memory is simple: you
+iterate through it keeping a table of the times you've seen each element.  At
+worst (no duplicates), you'll use memory on the order of the size of the data
+set, plus the storage space it takes to store the count (an integer).
+
+h2. Counting and Analysis
+
+h3. Just Keep a HashMap/Table
+
+  [ HUGE red X ]
+
+BZZT!
+
+Remember: too big for RAM, possibly way to big.
+
+h3. Next Utility Belt Gadget: Bloom Filters
+
+h3. What's a Bloom Filter
+
+h3. Find likely Dupes in 1 pass
+
+  Emit anything that's a HIT with the Bloom Filter.
+
+  You'll get Some false positives.
+
+  This is good enough for many of my use cases.
+
+
+h3. Find Actual Dupes / Counts in 1 Pass
+
+  Use a HashMap to count the elements that are a hit.
+
+  Dump anything that has a count > 1 when you're done.
+
+
+h3. Bonus: use proxy keys, not just natural keys
+
+  You can compute a value on the data before testing it vs the bloom filter.
+
+h2. Records and Identity
+
+  Identity within the file.
+
+  Many of the dumps I receive have no persistent identifiers.
+
+  Many have no relative identifiers!
+
+  Give each record an ID.
+
+  [ seq util that adds a counter to each record ]
+
+  You can just count up from 1, or if you want to get fancy, use an LFSR.
+
+h2. What's an LFSR?
+
+  Linear Feedback Shift Register.
+
+  Class of PRNG.
+
+  Interesting subset: m-sequences (have maximal period)
+
+  Binary Numbering System - but non-sequential (remember: a prng)
+
+  Fast, easy to serialize, not a hash.
+
+  Keeps adjacent records from being close based on ID.
+
+  This is not an issue for software / machines: but may help humans looking at
+  the data from assuming that IDs which are close have some meaning.
+
+  [ seq util that adds an lfsr id to each record ]
+
+h2. Cheap Indexing Outside the Database / Grouping Records
+
+Random Access
+
+  Really means ability to seek within the file, not really random.
+
+  Not a Streaming / Sequencing interface, boo
+
+  With a few Clojure functions over the indexes we can re-make an ordered
+  sequence of records!
+
+h2. Creating Indexes
+
+h2. Using Indexes
+
+h3. Getting Record Groupings
+
+h3. Fuzzy Duplicate Detection
+
