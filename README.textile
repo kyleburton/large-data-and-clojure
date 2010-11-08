@@ -181,11 +181,7 @@ h3. Fuzzy Duplicate Detection
 
 Given a record grouping (based on proxy key), can we estimate similarity?
 
-h2. @pmap@: When it's worth it.
-
-Concurrency has some overhead.
-
-For cheap operations, this it outweighs the benefits.
+h2. Concurrency: Keeping your cores busy
 
 h3. Processing a File: lines in parallel
 
@@ -197,7 +193,23 @@ not get the parallelization you anticipate if you don't keep the threadpool hot
 / busy.  Please see David Edgar Liebke's slide deck for more details on this,
 but I've seen it happen.
 
-h3. Processing a file: By Chunks
+h3. Creating simple work queues:
+
+  Break a large file down with GNU split
+    split -l 10000 some-large-file.tab working-directory/inp-
+
+  Simple to create a work queue:
+
+    (pmap some-expensive-operation 
+      (map str (filter #(.isFile %) (.listFiles (java.io.File. "working-directory/")))))
+
+  Recombine results:
+
+    for f in working-directory/outp-*; do 
+      cat $f >> all-results.tab
+    done
+
+h3. Do this w/o Leaving Clojure : Processing a file: By Chunks
 
   (byte-partitions-at-line-boundaries "some-huge-file.tab" (* 5 1024 1024))
    => ([start1 end1] [start2 end2] [start3 end3] ...)
@@ -211,6 +223,12 @@ into a seq of lines:
         (some-expensive-thing line)
       (byte-partitions-at-line-boundaries "some-huge-file.tab" (* 5 1024 1024)))
 
-    
+You can also do this pretty easily by line count as well, by using the Clojure
+built-in function: partition and @pmap@'ing over the results.
 
+h2. Aside: @pmap@ and When it's worth it.
+
+Concurrency has some overhead.
+
+For cheap operations, this it outweighs the benefits.
 
