@@ -1,0 +1,11 @@
+h1. Large Data and Clojure: the middle ground between RAM and EC2
+
+In this talk I'll discuss techniques I have learned for working with large data
+sets, which are too large to fit in RAM, but not so large you need distributed
+computing to work with them.  I'll discuss things like: taking random samples;
+finding duplicated values as well as other types of basic analysis.' 
+
+
+Though not specific to Clojure, many of the techniques lead to elegant, easy to
+understand implementations in Clojure by leveraging it's sequence abstraction
+as well as other aspects of the language
