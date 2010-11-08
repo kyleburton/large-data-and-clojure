@@ -160,9 +160,57 @@ Random Access
 
 h2. Creating Indexes
 
+Natual Keys are easy: just extract and return
+
+indexer.clj supports > 1 key for each record
+
+Proxy keys are easy, just compute the proxy keys for the row and return them
+(eg: soundex)
+
 h2. Using Indexes
+
+Interactive Lookups (yes, like a sql select)
+
+Intersecting multiple indexes
 
 h3. Getting Record Groupings
 
+The sequence merge function.
+
 h3. Fuzzy Duplicate Detection
+
+Given a record grouping (based on proxy key), can we estimate similarity?
+
+h2. @pmap@: When it's worth it.
+
+Concurrency has some overhead.
+
+For cheap operations, this it outweighs the benefits.
+
+h3. Processing a File: lines in parallel
+
+  (pmap some-fn (ds/read-lines some-file))
+
+For heavyweight stuff this works but may not.  Also, based on pmap's
+implementation (see: http://data-sorcery.org/2010/10/23/clojureconj/), you may
+not get the parallelization you anticipate if you don't keep the threadpool hot
+/ busy.  Please see David Edgar Liebke's slide deck for more details on this,
+but I've seen it happen.
+
+h3. Processing a file: By Chunks
+
+  (byte-partitions-at-line-boundaries "some-huge-file.tab" (* 5 1024 1024))
+   => ([start1 end1] [start2 end2] [start3 end3] ...)
+
+These will be 'about' every 5Mb through the file.  Then, turn each of those
+into a seq of lines:
+
+  (pmap
+    (fn [[start end]]
+      (doseq [line (read-lines-from-file-segment "some-huge-file.tab" start end)]
+        (some-expensive-thing line)
+      (byte-partitions-at-line-boundaries "some-huge-file.tab" (* 5 1024 1024)))
+
+    
+
 
