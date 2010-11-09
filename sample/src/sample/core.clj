@@ -76,7 +76,11 @@
   (add-identifier
    "phone-nums.txt"
    "phone-nums-with-lfsr-ids.txt"
-   (drop (.nextInt (java.util.Random. 9999)) (map :state (lfsr/lfsr-lazy-seq (lfsr/lfsr 64 [64 63 61 60])))))
+   (drop (.nextInt (java.util.Random.) 9999) (map :state (lfsr/lfsr-lazy-seq (lfsr/lfsr 64 [64 63 61 60])))))
+
+  (take 10 (map #(format "ID-%022X" %1)
+                (drop (.nextInt (java.util.Random.) 9999) (map :state (lfsr/lfsr-lazy-seq (lfsr/lfsr 64 [64 63 61 60]))))))
+
 
   )
 
@@ -100,7 +104,9 @@
 (comment
 
   (find-dupes-naieve (take 100 (ds/read-lines "phone-nums-with-lfsr-ids-some-dupes.txt")))
-  (find-dupes-naieve (take 1000000 (ds/read-lines "phone-nums-with-lfsr-ids.txt")))
+
+  ;; With the lieningen default settings, This blows up w/an OOM
+  (find-dupes-naieve (ds/read-lines "phone-nums-with-lfsr-ids.txt"))
 
   )
 
@@ -141,7 +147,6 @@
       2000000 0.01)))
 
   ;; 8730.217 for 100000
-  ;; est (* 9 200) 1800 seconds, or 30min for the full 2MM, which is better than an OOM
 
   ;; the full monty
   (time
@@ -149,5 +154,7 @@
     (find-dupes-with-bloom-filter
       (ds/read-lines "phone-nums-with-lfsr-ids.txt")
       2000000 0.01)))
+
+  ;; woot: 182004.084 msecs!
 
   )
