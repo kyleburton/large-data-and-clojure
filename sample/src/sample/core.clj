@@ -85,25 +85,26 @@
   )
 
 
+
 (defn find-dupes-naieve [inp-seq]
-  (loop [[l & lines] inp-seq
-         res {}]
-    (if-not l
-      (loop [dps {}
-             [k & ks] (keys res)]
-        (cond
-          (not k)  dps
-          (> (res k) 1)  (recur (assoc dps k (res k)) ks)
-          :else          (recur dps ks)))
-      (let [[id phone-number] (.split l "\t")]
-        (recur lines
-               (assoc res
-                 phone-number
-                 (inc (res phone-number 0))))))))
+  (reduce (fn [res item]
+            (assoc res item (inc (get res item 0))))
+          {}
+          (map #(second (.split %1 "\t")) inp-seq)))
+
+(defn evict-singletons [m]
+  (loop [dps {}
+         [k & ks] (keys m)]
+    (cond
+      (not k)  dps
+      (> (get m k) 1)  (recur (assoc dps k (get m k)) ks)
+      :else          (recur dps ks))))
+
+
 
 (comment
 
-  (find-dupes-naieve (take 100 (ds/read-lines "phone-nums-with-lfsr-ids-some-dupes.txt")))
+  (evict-singletons (find-dupes-naieve (take 100 (ds/read-lines "phone-nums-with-lfsr-ids-some-dupes.txt"))))
 
   ;; With the lieningen default settings, This blows up w/an OOM
   (find-dupes-naieve (ds/read-lines "phone-nums-with-lfsr-ids.txt"))
@@ -113,25 +114,14 @@
 
 (defn find-dupes-with-bloom-filter [inp-seq expected-size fp-prob]
   (let [flt (bloom/make-optimal-filter expected-size fp-prob)]
-    (loop [[l & lines] inp-seq
-           res {}]
-      (if-not l
-        (loop [dps {}
-               [k & ks] (keys res)]
-          (cond
-            (not k)  dps
-            (> (res k) 1)  (recur (assoc dps k (res k)) ks)
-            :else          (recur dps ks)))
-        (let [[id phone-number] (.split l "\t")]
-          (if-not (bloom/include? flt phone-number)
-            (do
-              (bloom/add! flt phone-number)
-              (recur lines res))
-            (do
-              (recur lines
-                     (assoc res
-                       phone-number
-                       (inc (res phone-number 1)))))))))))
+    (reduce (fn [res item]
+              (if-not (bloom/include? flt item)
+                (do
+                  (bloom/add! flt item)
+                  res)
+                (assoc res item (inc (get res item 1)))))
+            {}
+            (map #(second (.split %1 "\t")) inp-seq))))
 
 (comment
 
