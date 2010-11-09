@@ -1,0 +1,10 @@
+# Sample Code 
+
+This project is sample code that goes along with the "Large Data and Clojure" Talk.
+
+## Usage
+
+This is a Leiningen project.  Please see the documentation for Leiningen for
+more information.
+
+
