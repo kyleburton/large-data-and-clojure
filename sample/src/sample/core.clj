@@ -2,6 +2,7 @@
   (:import [java.io File])
   (:use [clj-etl-utils.lang-utils :only (raise)])
   (:require [clj-etl-utils.io                    :as io]
+            [clj-etl-utils.sequences             :as sequencese]
             [com.github.kyleburton.clj-lfsr.core :as lfsr]
             [com.github.kyleburton.clj-bloom     :as bloom]
             [clojure.contrib.pprint              :as pp]
@@ -148,3 +149,115 @@
   ;; woot: 182004.084 msecs!
 
   )
+
+
+(defn count-area-codes [inp-seq]
+  (reduce (fn [m line]
+            (let [phnum         (second (.split line "\t"))
+                  [_ area-code] (first (re-seq #"\((\d+)\)" phnum))]
+              (assoc m area-code (inc (get m area-code 0)))))
+          {}
+          inp-seq))
+
+(comment
+
+  (time
+   (count-area-codes (take 100 (ds/read-lines "phone-nums-with-lfsr-ids.txt"))))
+
+  (time
+   (pp/pprint
+    (count-area-codes (ds/read-lines "phone-nums-with-lfsr-ids.txt"))))
+
+  ;; "Elapsed time: 40460.279 msecs"
+
+)
+
+
+;; make sure you split the files first...see split-file.sh:
+;;    split -l 100000 phone-nums-with-lfsr-ids.txt working-dir/inp-
+
+;;     (pmap some-expensive-operation
+;;       (map str (filter #(.isFile %) (.listFiles (java.io.File. "working-directory/")))))
+
+(comment
+
+  ;; this gets you a sequence of maps that will then need to be merged...
+  (time
+   (pp/pprint
+    (map (fn [inp-file]
+           (count-area-codes (ds/read-lines inp-file)))
+         (take 2 (map str (filter #(.isFile %) (.listFiles (java.io.File. "working-dir/"))))))))
+
+  (apply
+   merge-with +
+   (map (fn [inp-file]
+          (count-area-codes (ds/read-lines inp-file)))
+        (map str (filter #(.isFile %) (.listFiles (java.io.File. "working-dir/"))))))
+
+  ;; 7244.75s for 200k
+
+  (time
+   (pp/pprint
+    (reduce
+     (fn [res counts]
+       (merge-with + res counts))
+     (map (fn [inp-file]
+            (count-area-codes (ds/read-lines inp-file)))
+          (map str (filter #(.isFile %) (.listFiles (java.io.File. "working-dir/"))))))))
+
+  ;; "Elapsed time: 43171.102 msecs"
+
+  (time
+   (pp/pprint
+    (reduce
+     (fn [res counts]
+       (merge-with + res counts))
+     (pmap (fn [inp-file]
+             (count-area-codes (ds/read-lines inp-file)))
+          (map str (filter #(.isFile %) (.listFiles (java.io.File. "working-dir/"))))))))
+
+  ;; "Elapsed time: 34740.162 msecs"
+
+  ;; a bit faster on my laptop (Mac w/Core 2 DUO), performance on your
+  ;; system will vary based on your system's CPUs and IO
+
+  ;; also, the hidden cost here is the time it took to the split
+  ;; (which is also 1x IO) which, on my macbook makes this solution
+  ;; less optimal than just counting the entire file...
+
+  )
+
+(comment
+
+  (time
+   (pp/pprint
+    (let [inp-file "phone-nums-with-lfsr-ids.txt"]
+      (reduce
+       (fn [res counts]
+         (merge-with + res counts))
+       (pmap (fn [[start end]]
+               (count-area-codes (clj-etl-utils.io/read-lines-from-file-segment inp-file start end)))
+             (partition 2 1 (clj-etl-utils.io/byte-partitions-at-line-boundaries inp-file (* 1024 1024))))))))
+
+  "Elapsed time: 31985.664 msecs"
+
+  (apply + (map (fn [[s e]]
+                  (- e s)) (partition 2 1 (clj-etl-utils.io/byte-partitions-at-line-boundaries "phone-nums-with-lfsr-ids.txt" (* 1024 1024)))))
+
+  (second (partition 2 1 (clj-etl-utils.io/byte-partitions-at-line-boundaries "phone-nums-with-lfsr-ids.txt" (* 1024 1024))))
+  (1048577 2097175)
+
+  (time
+   (count (clj-etl-utils.io/read-lines-from-file-segment "phone-nums-with-lfsr-ids.txt" 0 3532265)))
+
+
+  (sequences/random-sample-seq (ds/read-lines "phone-nums.txt")
+                               2000000
+                               200)
+
+
+  (time
+   (count (ds/read-lines "working-dir/inp-aa")))
+
+  )
+
