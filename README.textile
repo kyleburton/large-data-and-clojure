@@ -1,4 +1,4 @@
-h1. Large Data and Clojure: the middle ground between RAM and EC2
+h1. Beat the DB: Recipes for Large data Analysis with Clojure
 
 In this talk I'll discuss techniques I have learned for working with large data
 sets - those which are too large to fit in RAM, but not so large you need
@@ -11,6 +11,15 @@ understand implementations in Clojure by leveraging it's sequence abstraction
 as well as other features of the language.
 
 Come hear about some new gadgets to add to your data munging utility belt!
+
+
+-- I recently learned some new tools and techniques for working with large data
+-- sets – those which are too large to fit in RAM, but not so large you need
+-- distributed computing to work with them.  I’ll discuss things like: taking
+-- random samples; finding duplicated values as well as other types of basic
+-- analysis.’
+
+
 
 h2. How to Win the Random Sample Turkey Shoot
 
@@ -232,3 +241,9 @@ Concurrency has some overhead.
 
 For cheap operations, this it outweighs the benefits.
 
+
+h1. Special Thanks
+
+Rob DiMarco for helping with the title and abstract for this talk.
+
+Paul Santa Clara for being part of the learning process.
