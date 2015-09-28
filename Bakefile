@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+bake_require github.com/kyleburton/bake-recipies/emacs/cider.sh
+
+bake_task run_emacs "Run emacs with Kyle's configuration"
+function run_emacs () {
+  emacs -nw -q -l $HOME/.bake/packages/github.com/kyleburton/bake-recipies/files/emacs/.emacs "$@"
+}
+
+
+bake_task get-sample-data "Download some sample data..."
+function get-sample-data () {
+  local url="http://free-email-database.blogspot.com/2008/12/welcome-to-free-e-mail-database.html"
+  test -d data || mkdir data
+  for ii in $(seq 5); do
+    test -f data/$ii.html || curl "$url" > data/$ii.html
+  done
+}

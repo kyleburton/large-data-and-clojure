@@ -1,3 +1,13 @@
+NB: I'm the process of updating this talk.
+
+* data processing techniques for single processes
+  * stream sampling
+  * bloom filters
+* clojure and distributed data processing
+  * getting a REPL on your Storm topology
+  * ? connecting a REPL to Spark
+
+================================================================================
 h1. Beat the DB: Recipes for Large data Analysis with Clojure
 
 Learn techniques for working with large data sets: those which are too large to
@@ -7,7 +17,7 @@ samples and find highly duplicated values - without a database import.
 I'll walk you through efficient recipes for: taking random samples in a single
 pass, finding highly duplicated values in a single pass using a bloom filter,
 and processing large data files in parallel - without preprocessing.  These
-techniques let you avoid having to import the data sets into your database, 
+techniques let you avoid having to import the data sets into your database,
 and efficiently perform operations that would incur large memory or IO overhead
 in a database.
 
@@ -215,12 +225,12 @@ h3. Creating simple work queues:
 
   Simple to create a work queue:
 
-    (pmap some-expensive-operation 
+    (pmap some-expensive-operation
       (map str (filter #(.isFile %) (.listFiles (java.io.File. "working-directory/")))))
 
   Recombine results:
 
-    for f in working-directory/outp-*; do 
+    for f in working-directory/outp-*; do
       cat $f >> all-results.tab
     done
 
