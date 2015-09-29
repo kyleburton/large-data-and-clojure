@@ -11,6 +11,7 @@
     :plugins       []}}
   :dependencies [
                  [org.clojure/tools.logging              "0.3.1"]
+                 [ch.qos.logback/logback-classic         "1.0.13"]
                  [org.clojure/clojure                    "1.7.0"]
                  [org.clojure/tools.nrepl                "0.2.11"]
                  ;; NB: cider-nrepl is up to 0.9.1

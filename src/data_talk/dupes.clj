@@ -2,7 +2,8 @@
   (:require
    [com.github.kyleburton.clj-bloom :as bloom]
    [schema.core                     :as s]
-   [clojure.java.io                 :as io]))
+   [clojure.java.io                 :as io]
+   [clojure.tools.logging           :as log]))
 
 ;; 1. Likely Duplicates in the first pass
 ;; 2. The actual Duplicates in two passes.
@@ -19,9 +20,15 @@
   (let [flt (bloom/make-optimal-filter psize fp-prob)]
     (reduce
      (fn [likely-dupes item]
+       ;; not in the filter? not a dupe (no FPs)
        (if (bloom/include? flt item)
-         likely-dupes ;; no in the filter? not a dupe (no FPs)
-         (conj likely-dupes item)))
+         (do
+           (log/infof "adding: %s" item)
+           (bloom/add! flt item)
+           likely-dupes)
+         (do
+           (log/infof "dupe:   %s" item)
+           (conj likely-dupes item))))
      #{}
      inp-seq)))
 
@@ -30,13 +37,12 @@
   (with-open [rdr (io/reader emails-file)
               wtr (io/writer "likely-dupes.txt")]
     (let [likely-dupes (find-likely-dupes-in-single-pass
-                        (line-seq rdr)
+                        (take 1000 (line-seq rdr))
                         (num-lines emails-file)
                         0.05)]
       (doseq [item likely-dupes]
         (.write wtr item)
         (.write wtr "\n"))))
-
 
   )
 
