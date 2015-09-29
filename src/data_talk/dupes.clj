@@ -4,15 +4,44 @@
    [schema.core                     :as s]
    [clojure.java.io                 :as io]))
 
+;; 1. Likely Duplicates in the first pass
+;; 2. The actual Duplicates in two passes.
 
+;; NB: create this file by running 'bake extract-emails' in the
+;; project root
 (defonce emails-file "data/emails.txt")
 
 (def num-lines (memoize (fn [fname]
                           (with-open [rdr (io/reader fname)]
                             (count (line-seq rdr))))))
 
+(defn find-likely-dupes-in-single-pass [inp-seq psize fp-prob]
+  (let [flt (bloom/make-optimal-filter psize fp-prob)]
+    (reduce
+     (fn [likely-dupes item]
+       (if (bloom/include? flt item)
+         likely-dupes ;; no in the filter? not a dupe (no FPs)
+         (conj likely-dupes item)))
+     #{}
+     inp-seq)))
 
-(defn build-filter [inp-seq psize fp-prob]
+(comment
+
+  (with-open [rdr (io/reader emails-file)
+              wtr (io/writer "likely-dupes.txt")]
+    (let [likely-dupes (find-likely-dupes-in-single-pass
+                        (line-seq rdr)
+                        (num-lines emails-file)
+                        0.05)]
+      (doseq [item likely-dupes]
+        (.write wtr item)
+        (.write wtr "\n"))))
+
+
+  )
+
+
+(defn build-bloom-filter [inp-seq psize fp-prob]
   (let [flt (bloom/make-optimal-filter psize fp-prob)]
     (doseq [item inp-seq]
       (bloom/add! flt item))
@@ -35,7 +64,7 @@
 
   (def flt
     (with-open [rdr (io/reader emails-file)]
-      (build-filter
+      (build-bloom-filter
        (line-seq rdr)
        (num-lines emails-file)
        0.01)))

@@ -16,3 +16,9 @@ function get-sample-data () {
     test -f data/$ii.html || curl "$url" > data/$ii.html
   done
 }
+
+bake_task extract-emails "Extract list of email addresses from the HTML files"
+function extract-emails () {
+  get-sample-data
+  lein run  -m data-talk.data extract-emails
+}

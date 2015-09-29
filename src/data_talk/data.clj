@@ -1,11 +1,9 @@
+;; utils for preparing the example data
 (ns data-talk.data
   (:require
    [clojure.java.io               :as io]
    [clj-etl-utils.landmark-parser :as lp]
    [schema.core                   :as s]))
-
-;; utils for preparing the data
-
 
 (s/defn extract-emails-from-html [html-fname :- s/Str]
   (let [p       (lp/make-parser (slurp html-fname))
@@ -27,6 +25,26 @@
         (.write wtr email)
         (.write wtr "\n")))))
 
+(defn -main [& args]
+  (let [cmd (or (first args) "extract-emails")]
+    (cond
+      (= "extract-emails" cmd)
+      (extract-emails
+       "data/emails.txt"
+       (->>
+        (io/file "data")
+        file-seq 
+        (filter #(.endsWith (str %) ".html"))
+        (map str)))
+      :otherwise
+      (extract-emails
+       "data/emails.txt"
+       (->>
+        (io/file "data")
+        file-seq 
+        (filter #(.endsWith (str %) ".html"))
+        (map str))))))
+
 (comment
   (extract-emails
    "data/emails.txt" 
@@ -34,7 +52,7 @@
     (io/file "data")
     file-seq 
     (filter #(.endsWith (str %) ".html"))
-    (map str)))
+    (map str))w)
 
   (doseq [ii (range 1 6)]
     (extract-emails
