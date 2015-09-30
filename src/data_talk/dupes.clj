@@ -23,12 +23,12 @@
        ;; not in the filter? not a dupe (no FPs)
        (if (bloom/include? flt item)
          (do
-           (log/infof "adding: %s" item)
-           (bloom/add! flt item)
-           likely-dupes)
+           (log/infof "dupe: %s" item)
+           (conj likely-dupes item))
          (do
-           (log/infof "dupe:   %s" item)
-           (conj likely-dupes item))))
+           (log/infof "add:  %s" item)
+           (bloom/add! flt item)
+           likely-dupes)))
      #{}
      inp-seq)))
 
@@ -37,16 +37,35 @@
   (with-open [rdr (io/reader emails-file)
               wtr (io/writer "likely-dupes.txt")]
     (let [likely-dupes (find-likely-dupes-in-single-pass
-                        (take 1000 (line-seq rdr))
+                        (line-seq rdr)
                         (num-lines emails-file)
                         0.05)]
       (doseq [item likely-dupes]
         (.write wtr item)
         (.write wtr "\n"))))
 
+
+  (let [fname "data/fruit.txt"]
+   (with-open [rdr (io/reader fname)
+               wtr (io/writer "fruit-dupes.txt")]
+     (let [likely-dupes (find-likely-dupes-in-single-pass
+                         (line-seq rdr)
+                         (num-lines fname)
+                         0.05)]
+       (doseq [item likely-dupes]
+         (.write wtr item)
+         (.write wtr "\n")))))
+
+
+
   )
 
 
+;; Finding all of the actual dupes requires 2 passes:
+;;  p.1: populate the bloom filter
+;;  p.2: record the counts of any items that are in the filter
+;;       where the count=1 it's a FP
+;;       where the count>1 it's a dupe
 (defn build-bloom-filter [inp-seq psize fp-prob]
   (let [flt (bloom/make-optimal-filter psize fp-prob)]
     (doseq [item inp-seq]
