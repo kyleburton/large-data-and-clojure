@@ -7,7 +7,6 @@ function run_emacs () {
   emacs -nw -q -l $HOME/.bake/packages/github.com/kyleburton/bake-recipies/files/emacs/.emacs "$@"
 }
 
-
 bake_task get-sample-data "Download some sample data..."
 function get-sample-data () {
   local url="http://free-email-database.blogspot.com/2008/12/welcome-to-free-e-mail-database.html"
@@ -22,3 +21,14 @@ function extract-emails () {
   get-sample-data
   lein run  -m data-talk.data extract-emails
 }
+
+bake_task run_dev "Run the project's main (the NREPL server)"
+function run_dev () {
+  lein run
+}
+
+bake_task gen-rand-email-file "Generate a random list of emails."
+function gen-rand-email-file () {
+  lein run  -m data-talk.data generate-email-address-file
+}
+

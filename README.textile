@@ -7,6 +7,22 @@ NB: I'm the process of updating this talk.
   * getting a REPL on your Storm topology
   * ? connecting a REPL to Spark
 
+h1. Running the example code
+
+You need to have Java installed and configured.  You'll need two utilities: "bake":https://github.com/kyleburton/bake and "leiningen":https://github.com/technomancy/leiningen.  You can get both of these by executing the following commands:
+
+<pre>
+  test -d $HOME/bin || mkdir $HOME/bin
+  test -x $HOME/bin/bake || curl https://raw.githubusercontent.com/kyleburton/bake/master/bake > $HOME/bin/bake
+  chmod 755 $HOME/bin/bake
+  test -x $HOME/bin/lein || curl https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein > $HOME/bin/lein
+  chmod 755 $HOME/bin/lein
+  export PATH=$HOME/bin:$PATH
+  bake emacs-install-cider
+  bake emacs-install-ac-cider
+  bake get-sample-data
+</pre>
+
 ================================================================================
 h1. Beat the DB: Recipes for Large data Analysis with Clojure
 

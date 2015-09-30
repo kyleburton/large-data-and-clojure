@@ -3,3 +3,5 @@ data/
 target/
 *~
 likely-dupes.txt
+dupe-emails.txt
+fruit-dupes.txt
