@@ -26,6 +26,13 @@
       (num-lines fname)
       sample-size))))
 
+(s/defn sample-example [fname :- s/Str sample-size :- s/Num]
+  (with-open [reader (io/reader fname)]
+    (random-sample-seq
+     (line-seq reader)
+     400000000
+     20000)))
+
 
 (comment
 
