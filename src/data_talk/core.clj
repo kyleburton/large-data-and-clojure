@@ -3,7 +3,6 @@
    [clojure.tools.nrepl.server :refer [start-server stop-server]]
    [cider.nrepl                :refer [cider-nrepl-handler]]
    [clojure.tools.logging      :as log]
-   [cheshire.core              :refer [generate-string parse-string]]
    [schema.core                :as s]))
 
 (defonce nrepl-server (atom nil))

@@ -10,15 +10,16 @@
    {:resource-paths["dev-resources"]
     :plugins       []}}
   :dependencies [
+                 [org.clojure/clojure                    "1.9.0-alpha17"]
                  [org.clojure/tools.logging              "0.3.1"]
                  [ch.qos.logback/logback-classic         "1.0.13"]
-                 [org.clojure/clojure                    "1.7.0"]
-                 [org.clojure/tools.nrepl                "0.2.11"]
-                 ;; NB: cider-nrepl is up to 0.9.1
-                 [cider/cider-nrepl                      "0.7.0"]
-                 [prismatic/schema                       "1.0.1"]
-                 [cheshire                               "5.5.0"]
-                 [com.github.kyleburton/clj-xpath        "1.4.5"]
+                 [org.clojure/tools.nrepl                "0.2.12"]
+                 [cider/cider-nrepl                      "0.13.0"]
+                 [org.clojure/data.json                  "0.2.6"]
+                 [clj-time                               "0.12.0"]
+                 [org.clojure/core.cache                 "0.6.4"]
+                 [http-kit                               "2.1.18"]
+                 [prismatic/schema                       "1.1.6"]
                  [com.github.kyleburton/clj-bloom        "1.0.4"]
                  [com.github.kyleburton/clj-etl-utils    "1.0.94"]])
 

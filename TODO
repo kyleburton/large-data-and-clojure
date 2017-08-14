@@ -1,0 +1,10 @@
+TODO[talk]: giving this as a talk in 9/13 at the Santa Monica Clojure Group!
+
+TODO[clj-bloom]: update to new clojure + deps
+TODO[clj-xpath]: update to new clojure + deps
+
+TODO[talk]: generate a phone numbers data set (use corpus enormous + the phone data sets in etl utils)
+TODO[talk]: generate a people data set (use corpus enormous + the census first/last names + zip code data from etl utils)
+
+DONE[talk]:      update to new clojure + deps
+DONE[talk]: remove cheshire (serialization?) replace with vanilla clojure.data.json
