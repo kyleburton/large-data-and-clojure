@@ -158,7 +158,7 @@
   )
 
 (defn -main [& args]
-  (let [cmd (or (first args) "extract-emails")]
+  (let [[cmd & cmd-args] args]
     (cond
       (= "generate-email-address-file" cmd)
       (generate-email-address-file)
@@ -171,16 +171,12 @@
         file-seq 
         (filter #(.endsWith (str %) ".html"))
         (map str)))
+      
       (= "generate-phones-file" cmd)
       (generate-big-phones-file "data/phones.1m.txt" 10000000 0.00001)
+      
       :otherwise
-      (extract-emails
-       "data/emails.txt"
-       (->>
-        (io/file "data")
-        file-seq 
-        (filter #(.endsWith (str %) ".html"))
-        (map str))))))
+      (.println System/out (format "main: generate-email-address-file|extract-emails|generate-phones-file")))))
 
 (comment
   (extract-emails
