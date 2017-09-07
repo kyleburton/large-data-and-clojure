@@ -1,10 +1,18 @@
 TODO[talk]: giving this as a talk in 9/13 at the Santa Monica Clojure Group!
 
-TODO[clj-bloom]: update to new clojure + deps
-TODO[clj-xpath]: update to new clojure + deps
+TODO[clj-etl-utils]:      update to new clojure + deps
+TODO[clj-etl-utils]:      release new version
 
-TODO[talk]: generate a phone numbers data set (use corpus enormous + the phone data sets in etl utils)
 TODO[talk]: generate a people data set (use corpus enormous + the census first/last names + zip code data from etl utils)
+TODO[talk]: update the sample code :: rewrite code to be more idiomatic / clearer
 
-DONE[talk]:      update to new clojure + deps
+TODO[clj-xpath]:     update to new clojure + deps
+TODO[clj-xpath]:     release new version
+
+DONE[talk]: generate a phone numbers data set (use corpus enormous + the phone data sets in etl utils)
+DONE[talk]:          update to new clojure + deps
 DONE[talk]: remove cheshire (serialization?) replace with vanilla clojure.data.json
+DONE[corpus-enormous]:    update to new clojure + deps
+DONE[corpus-enormous]:    release new version
+DONE[clj-bloom]:          update to new clojure + deps
+DONE[clj-bloom]:          release new verwsion

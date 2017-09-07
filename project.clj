@@ -5,8 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main ^:skip-aot data-talk.core
   :jvm-opts ["-Xmx512m" "-server"]
-  :profiles 
-  {:dev 
+  :profiles
+  {:dev
    {:resource-paths["dev-resources"]
     :plugins       []}}
   :dependencies [
@@ -16,10 +16,14 @@
                  [org.clojure/tools.nrepl                "0.2.12"]
                  [cider/cider-nrepl                      "0.13.0"]
                  [org.clojure/data.json                  "0.2.6"]
-                 [clj-time                               "0.12.0"]
-                 [org.clojure/core.cache                 "0.6.4"]
-                 [http-kit                               "2.1.18"]
+                 [clj-time                               "0.14.0"]
+                 [http-kit                               "2.2.0"]
                  [prismatic/schema                       "1.1.6"]
-                 [com.github.kyleburton/clj-bloom        "1.0.4"]
-                 [com.github.kyleburton/clj-etl-utils    "1.0.94"]])
+
+                 [com.github.kyleburton/clj-bloom        "1.0.5"]
+                 [com.github.kyleburton/clj-etl-utils    "1.0.95"]
+
+                 [corpus-enormous                        "0.1.5"]
+                 [com.github.kyleburton/clj-lfsr         "1.3.4"]
+                 ])
 

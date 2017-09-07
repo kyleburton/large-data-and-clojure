@@ -1,6 +1,8 @@
 ;; utils for preparing the example data
 (ns data-talk.data
   (:require
+   [com.github.kyleburton.clj-lfsr.core :as lfsr]
+   [com.github.kyleburton.clj-lfsr.taps :as lfsr-taps]
    [clojure.java.io               :as io]
    [clj-etl-utils.landmark-parser :as lp]
    [schema.core                   :as s]
@@ -41,9 +43,9 @@
 
 (defn lnames-seq []
   (->>
-    "data/dist.all.last"
-    lazy-file-lines
-    (map #(-> % (.split " ") first))))
+   "data/dist.all.last"
+   lazy-file-lines
+   (map #(-> % (.split " ") first))))
 
 (defn fnames-seq []
   (concat
@@ -85,11 +87,82 @@
       (.write wtr "\n"))
     (.write wtr "i.ma@dupe\n")))
 
+(defonce all-npa-nxx (->> (.split (slurp "data/allutlzd.txt") "\n")
+                          (map #(vec (map (fn [s] (.trim s))
+                                          (.split % "\\t"))))
+                          (drop 1)
+                          (reduce (fn [acc [state npa-nxx ocn company ratecenter effectivedate use-field assigndate initial-growth pooled-code-file-updated]]
+                                    (conj acc npa-nxx))
+                                  #{})
+                          shuffle
+                          seq))
+
+(defn make-random-phone-seq []
+  (let [npa-nxx        (atom all-npa-nxx)
+        next-npa-nxx   (fn []
+                         (let [next-npa-nxx (first @npa-nxx)]
+                           (swap! npa-nxx rest)
+                           next-npa-nxx))
+        nums           (atom [])
+        curr-npa-nxx   (atom nil)
+        next-phone-num (fn []
+                         (when (empty? @nums)
+                           (reset! curr-npa-nxx (next-npa-nxx))
+                           (reset! nums (shuffle (range 10000))))
+                         (let [next-num (first @nums)]
+                           (swap! nums rest)
+                           (format "%s-%04d" @curr-npa-nxx next-num)))]
+    (repeatedly next-phone-num)))
+
+(comment
+  (take 10 (make-random-phone-seq))
+  )
+
+(defn generate-big-phones-file [ofname num-phones rand-prob]
+  (let [phone-seq   (make-random-phone-seq)]
+    (with-open [wtr (io/writer ofname)]
+      ;; TODO: loop or dotimes
+      (loop [[phone & phones] phone-seq
+             num-phones       num-phones]
+        (cond
+          (or
+           (= 0 num-phones)
+           (not phone))
+          :done
+
+          :otherwise
+          (do
+            (.write wtr phone)
+            (.write wtr "\n")
+            (when (> rand-prob (rand))
+              ;; (log/infof "DUPE: %s" phone)
+              (.write wtr phone)
+              (.write wtr "\n"))
+            (recur phones (dec num-phones))))))))
+
+
+(comment
+
+  (do
+    (time
+     (generate-big-phones-file "some-phones.txt" 10000000 0.00001))
+    :done)
+  (> 0.1 (rand))
+
+  (doseq [ii (range 100)]
+    (let [rval (rand)]
+     (log/infof "ii=%d rand=%f (< 0.1 %f) => %s"
+                ii rval rval (< 0.1 rval))))
+
+
+  )
+
 (defn -main [& args]
   (let [cmd (or (first args) "extract-emails")]
     (cond
       (= "generate-email-address-file" cmd)
       (generate-email-address-file)
+      
       (= "extract-emails" cmd)
       (extract-emails
        "data/emails.txt"
@@ -98,6 +171,8 @@
         file-seq 
         (filter #(.endsWith (str %) ".html"))
         (map str)))
+      (= "generate-phones-file" cmd)
+      (generate-big-phones-file "data/phones.1m.txt" 10000000 0.00001)
       :otherwise
       (extract-emails
        "data/emails.txt"

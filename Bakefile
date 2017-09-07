@@ -14,12 +14,8 @@ function get-sample-data () {
   for ii in $(seq 5); do
     test -f data/$ii.html || curl "$url" > data/$ii.html
   done
-}
-
-bake_task extract-emails "Extract list of email addresses from the HTML files"
-function extract-emails () {
-  get-sample-data
-  lein run  -m data-talk.data extract-emails
+  # TODO: download & extract the census names file
+  # TODO: download & extract the npa-nxx data file
 }
 
 bake_task run_dev "Run the project's main (the NREPL server)"
@@ -27,8 +23,19 @@ function run_dev () {
   lein run
 }
 
+bake_task extract-emails "Extract list of email addresses from the HTML files"
+function extract-emails () {
+  get-sample-data
+  time lein run  -m data-talk.data extract-emails
+}
+
 bake_task gen-rand-email-file "Generate a random list of emails."
 function gen-rand-email-file () {
-  lein run  -m data-talk.data generate-email-address-file
+  time lein run  -m data-talk.data generate-email-address-file
+}
+
+bake_task gen-rand-phones-file "Generate a random list of phones."
+function gen-rand-phones-file () {
+  time lein run  -m data-talk.data generate-phones-file
 }
 

@@ -5,7 +5,7 @@ techniques stop working when our data no longer fits in a single process.  In
 this talk I'd like to share a few of the techniques I've learned that stretch
 what you can do on a single machine.  I'll cover taking random samples from
 large data sets with stream sampling and identifying (probable) duplicates when
-the set is too large to fit in memory.  
+the set is too large to fit in memory.
 
 
 NB: I'm the process of updating this talk.
@@ -26,20 +26,20 @@ NB: I'm the process of updating this talk.
    There are a couple of algorithms that I’ve learned that help stretch what can
    be done in a single process.  They help you use a fixed amount of memory to
    achieve the same outcomes without pulling your entire data set into memory.
-   
+
    These started out as interesting algorithms when I read about them, I didn't
    know where or when I was going to use them.  Knowing about them let me start to
    see where they could be applied.  That's one of the things I love about
    learning new techniques.
-   
+
    Two of the techniques I'm going to cover in this talk are: taking random
    samples and detecting duplicates in large data sets.  These techniques let you
    work with data that's too large to fit in memory in a single process, while
    still staying in a single process.
-   
+
 3. Mission: Probable
 
-   A few years ago, my company purchased a large data set and wanted to 
+   A few years ago, my company purchased a large data set and wanted to
    get a sense for how good the data was.  We needed to pull a random
    sample of the data and verify it.  The verification was too manual
    and expensive to do for the all of the data.
@@ -53,7 +53,7 @@ NB: I'm the process of updating this talk.
 
 7. Flip a Coin?
 
-We could iterate through the data set, generate a random number for each element and if it's less than 20k out of 400M, select that element.  This will let us do one pass over the data, though we will be over or under our sample size by some small amount.  If we have random access to the elements, we could generate random indexes into the 400M and select elements that way.  We'd have to be a little careful not to select the same record more than once.  
+We could iterate through the data set, generate a random number for each element and if it's less than 20k out of 400M, select that element.  This will let us do one pass over the data, though we will be over or under our sample size by some small amount.  If we have random access to the elements, we could generate random indexes into the 400M and select elements that way.  We'd have to be a little careful not to select the same record more than once.
  Can we refine the ‘flip a coin’ approach?  If you flip a coin 1/M for each
 element there is a chance you won’t hit your sample size.  Should we choosing a
 random index until we hit your sample size?  That’s sampling with replacement,
@@ -336,3 +336,9 @@ h1. Special Thanks
 Rob DiMarco for helping with the title and abstract for this talk.
 
 Paul Santa Clara for being part of the learning process.
+
+
+h1. Resources
+
+* https://www.nationalnanpa.com/reports/reports_cocodes_assign.html
+* https://www.census.gov/topics/population/genealogy/data/1990_census/1990_census_namefiles.html
