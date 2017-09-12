@@ -15,7 +15,17 @@ function get-sample-data () {
     test -f data/$ii.html || curl "$url" > data/$ii.html
   done
   # TODO: download & extract the census names file
+  test -e "dist.female.first.txt" && mv "dist.female.first.txt"  "dist.female.first"
+  test -e "dist.male.first.txt"   && mv "dist.male.first.txt"    "dist.male.first"
+  test -e "dist.all.last.txt"     && mv "dist.all.last.txt"      "dist.all.last"
+
   # TODO: download & extract the npa-nxx data file
+  if [ ! -e "data/allutlzd.txt" ]; then
+      (
+      cd data
+      unzip allutlzd.zip
+      )
+  fi
 }
 
 bake_task run_dev "Run the project's main (the NREPL server)"
@@ -39,3 +49,10 @@ function gen-rand-phones-file () {
   time lein run  -m data-talk.data generate-phones-file
 }
 
+
+bake_task generate-data "Generate all the example data files"
+function generate-data () {
+  extract-emails
+  gen-rand-email-file
+  gen-rand-phones-file
+}
