@@ -21,7 +21,7 @@
                  [prismatic/schema                       "1.1.6"]
 
                  [com.github.kyleburton/clj-bloom        "1.0.5"]
-                 [com.github.kyleburton/clj-etl-utils    "1.0.95"]
+                 [com.github.kyleburton/clj-etl-utils    "1.0.97"]
 
                  [corpus-enormous                        "0.1.5"]
                  [com.github.kyleburton/clj-lfsr         "1.3.4"]

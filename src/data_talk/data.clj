@@ -3,10 +3,11 @@
   (:require
    [com.github.kyleburton.clj-lfsr.core :as lfsr]
    [com.github.kyleburton.clj-lfsr.taps :as lfsr-taps]
-   [clojure.java.io               :as io]
-   [clj-etl-utils.landmark-parser :as lp]
-   [schema.core                   :as s]
-   [clojure.tools.logging         :as log]))
+   [clojure.java.io                     :as io]
+   [clj-etl-utils.landmark-parser       :as lp]
+   [schema.core                         :as s]
+   [clojure.tools.logging               :as log]
+   [clj-etl-utils.sequences             :as etl-seq]))
 
 (s/defn extract-emails-from-html [html-fname :- s/Str]
   (let [p       (lp/make-parser (slurp html-fname))
@@ -192,5 +193,17 @@
      (format "data/%d-emails.txt" ii)
      [(format "data/%d.html" ii)]))
 
+
   )
 
+
+(defn find-dupes-reservoir [ifname]
+  (with-open [ifh (io/file ifname)]
+    (let [sampler (etl-seq/make-reservoir 200)]
+      (sampler (line-seq ifh)))))
+
+(comment
+
+
+
+)
