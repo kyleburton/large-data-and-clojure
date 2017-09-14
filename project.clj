@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main ^:skip-aot data-talk.core
-  :jvm-opts ["-Xmx512m" "-server"]
+  :jvm-opts ["-Xmx1024m" "-server"]
   :profiles
   {:dev
    {:resource-paths["dev-resources"]

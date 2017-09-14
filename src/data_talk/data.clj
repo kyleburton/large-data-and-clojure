@@ -5,9 +5,11 @@
    [com.github.kyleburton.clj-lfsr.taps :as lfsr-taps]
    [clojure.java.io                     :as io]
    [clj-etl-utils.landmark-parser       :as lp]
+   [clojure.string                      :as string]
    [schema.core                         :as s]
    [clojure.tools.logging               :as log]
-   [clj-etl-utils.sequences             :as etl-seq]))
+   [clj-etl-utils.sequences             :as etl-seq]
+   [corpus-enormous.people              :as people]))
 
 (s/defn extract-emails-from-html [html-fname :- s/Str]
   (let [p       (lp/make-parser (slurp html-fname))
@@ -158,6 +160,30 @@
 
   )
 
+(defn generate-big-people-file [ofname num-records]
+  (let [fields [:id :first-name :last-name :gender :email :phone :ssn :street1 :street2 :city :state :zip]
+        lfsr-state (atom (let [lfsr-cfg (lfsr-taps/lfsr-for-bit-size 4 34)]
+                           (lfsr/lfsr 1 (:taps lfsr-cfg))))]
+   (with-open [wtr (io/writer ofname)]
+     (.write wtr (str (string/join "," fields) "\n"))
+     (dotimes [ii num-records]
+       (let [next-id (do
+                       (reset! lfsr-state (lfsr/next-lfsr @lfsr-state))
+                       (-> lfsr-state deref :state))
+             person  (assoc
+                      (people/random-person)
+                      :id (format "r.%010x" next-id))]
+         (.write wtr (str (string/join "," (map person fields)) "\n")))))))
+
+
+(comment
+  (format "r.%010x" 1234)
+  (Long/toString 1234 16)
+
+  (generate-big-people-file "test-people.csv" 10)
+
+)
+
 (defn -main [& args]
   (let [[cmd & cmd-args] args]
     (cond
@@ -174,7 +200,10 @@
         (map str)))
       
       (= "generate-phones-file" cmd)
-      (generate-big-phones-file "data/phones.1m.txt" 10000000 0.00001)
+      (generate-big-phones-file "data/phones.10m.txt" 10000000 0.00001)
+      
+      (= "generate-people-file" cmd)
+      (generate-big-people-file "data/people.1m.txt" 1000000)
       
       :otherwise
       (.println System/out (format "main: generate-email-address-file|extract-emails|generate-phones-file")))))
@@ -197,13 +226,13 @@
   )
 
 
+
+(comment
+
 (defn find-dupes-reservoir [ifname]
   (with-open [ifh (io/file ifname)]
     (let [sampler (etl-seq/make-reservoir 200)]
       (sampler (line-seq ifh)))))
-
-(comment
-
 
 
 )
