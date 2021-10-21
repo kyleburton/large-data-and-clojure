@@ -158,18 +158,41 @@
      :done))
   ;; ~8s
 
+  ;; let's take a quick look at where those line boundardies break down
+  (->>
+   (etl-io/byte-partitions-at-line-boundaries
+    (-> input-files :phones)
+    (* 1024 1024))
+   (take 5)
+   vec) 
+  
+  [0 1048580 2097160 3145740 4194320]
+
+  ;; not exactly at 1mb boundaries, which would have been
+  [0 1048576 2097152 3145728 4194304]
+
+  (->>
+   (etl-io/byte-partitions-at-line-boundaries
+    (-> input-files :phones)
+    (* 1024 1024))
+   (take 5)
+   (partition 2 1)
+   vec)
+  ;; read from .. to
+  [(0 1048580) (1048580 2097160) (2097160 3145740) (3145740 4194320)]
+
   ;; check out the actual results of this ...
   (time
    (do
-    (def results
-      (reduce
-       (fn [res counts]
-         (merge-with + res counts))
-       (pmap (fn [[start end]]
-               (count-area-codes
-                (etl-io/read-lines-from-file-segment (-> input-files :phones) start end)))
-             (partition 2 1 (etl-io/byte-partitions-at-line-boundaries (-> input-files :phones) (* 1024 1024))))))
-    :done))
+     (def results
+       (reduce
+        (fn [res counts]
+          (merge-with + res counts))
+        (pmap (fn [[start end]]
+                (count-area-codes
+                 (etl-io/read-lines-from-file-segment (-> input-files :phones) start end)))
+              (partition 2 1 (etl-io/byte-partitions-at-line-boundaries (-> input-files :phones) (* 1024 1024))))))
+     :done))
 
 
   )
