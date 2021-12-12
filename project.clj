@@ -11,7 +11,7 @@
     :plugins       []}}
   :dependencies [
                  [org.clojure/clojure                    "1.9.0-alpha17"]
-                 [org.clojure/tools.logging              "0.3.1"]
+                 [org.clojure/tools.logging              "1.2.1"]
                  [ch.qos.logback/logback-classic         "1.0.13"]
                  [org.clojure/tools.nrepl                "0.2.12"]
                  [cider/cider-nrepl                      "0.13.0"]
